@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ball bouncer</title>
+    <script src="Vector.js"></script>
+    <script src="BallBouncer.js"></script>
+    <script src="GameArea.js"></script>
+    <script src="GameObject.js"></script>
+    <script src="Ball.js"></script>
+    <script src="Wall.js"></script>
+    <script src="Brick.js"></script>
+</head>
+<body>
+<div style="display: flex;">
+    <div id="canvas-holder"></div>
+    <div>
+        <button onclick="game.start()">START GAME</button>
+    </div>
+</div>
+<script>
+    function ball_move(){
+
+    }
+
+    function label_move(){
+
+    }
+    function damage_detection(){
+
+    }
+    //canvas size
+/*    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext();
+
+    ctx.fillStyle = "green";
+    ctx.fillRect(10, 10, 150, 100);*/
+
+    const game = new BallBouncer();
+    game.init()
+
+
+</script>
+</body>
+</html>
