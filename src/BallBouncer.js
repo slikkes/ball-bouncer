@@ -15,10 +15,13 @@ class BallBouncer {
     start() {
         const origo = this.gameArea.origo
         let ball = new Ball(origo.x, origo.y + 150);
+        // set default velocity for testing
+        ball.velocity = new Vector(2, -2)
+
         this.gameObjects.push(ball)
         this.gameObjects.push(new Wall(0, this.gameArea.canvas.height))
         this.gameObjects.push(new Wall(this.gameArea.canvas.width - 10, this.gameArea.canvas.height));
-        this.gameObjects.push(new Brick(origo.x, origo.y));
+        this.gameObjects.push(new Brick(origo.x, 20));
 
         // TODO create bricks
         // TODO create player
@@ -33,12 +36,12 @@ class BallBouncer {
 
                 if (gameObject.type !== "ball") {
 
-                    const collisionAxis = ball.detectCollision(gameObject);
+                    const collisionAxis = ball.detectCollisionAxis(gameObject);
                     if (collisionAxis) {
                         //right y 490 0  460 190
                         //left y  0   0  10  160
                         //bottom x 250 250 250 280
-                        ball.bounce()
+                        ball.bounce(collisionAxis)
                         console.log('<----[(=| collision |=)]---->', gameObject.x - ball.x,
                             gameObject.y - ball.y,)
                     }

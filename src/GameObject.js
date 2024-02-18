@@ -6,7 +6,7 @@ class GameObject {
         this.width = width;
         this.height = height;
         this.color = color;
-        this.velocity = new Vector(0,0);
+        this.velocity = new Vector(0, 0);
     }
 
     draw(context) {
@@ -25,49 +25,72 @@ class GameObject {
         this.y = this.y + this.velocity.y
     }
 
-    detectCollision(gameObject){
+    detectCollisionAxis(gameObject) {
         const collisionX = this.x + this.width >= gameObject.x &&
             gameObject.x + gameObject.width >= this.x;
         const collisionY = this.y + this.height >= gameObject.y &&
             gameObject.y + gameObject.height >= this.y;
-/*
 
-        const collision = {
-            xRight: this.x >= gameObject.x && this.x < gameObject.x + gameObject.width,
-            xLeft: this.x >= gameObject.x && this.x < gameObject.x + gameObject.width,
-            yRight: this.x >= gameObject.x && this.x < gameObject.x + gameObject.width,
-            yLeft: this.x >= gameObject.x && this.x < gameObject.x + gameObject.width,
-        }
-        if(collisionX && collisionY){
-            console.log('<----[(=| collision |=)]---->', this.x, gameObject.x,  this.y, gameObject.y  )
-        }
-*/
-
-
-        const fullWidth = this.width + gameObject.width;
-        const fullHeight = this.height + gameObject.height;
-        const dx = null;
-        const dy = null;
-
-        if(this.velocity.x < 0 && this.velocity.y > 0){
-            const netWidth = (this.x+this.width) - gameObject.width
-            const offset = fullWidth - netWidth;
-            dx = this.width - offset;
-        }
-        if(this.velocity.x > 0 && this.velocity.y > 0){
-            const netWidth = (this.x+this.width) - gameObject.width
-
-        }
-        if(this.velocity.x < 0 && this.velocity.y < 0){
-
-        }
-        if(this.velocity.x > 0 && this.velocity.y < 0){
-
+        if (!(collisionX && collisionY)) {
+            return null
         }
 
+        const distances = this.getIntersectionDistances(gameObject)
 
+        if (distances.dx > distances.dy) {
+            return 'x'
+        } else if (distances.dx < distances.dy) {
+            return 'y'
+        } else {
+            return 'full'
+        }
+    }
+    getIntersectionDistances(gameObject){
+        let dx = null;
+        let dy = null;
 
-        return collisionX && collisionY;
+        let direction = this.velocity.getDirection();
+        switch (direction) {
+            case 'top-left': {
+                dx = (gameObject.x + gameObject.width) - this.x;
+                dy = (this.y + this.height) - gameObject.y
+                // check if top left x or y is further into the collision object
+                break;
+            }
+            case 'top-right': {
+                dx = gameObject.x - (this.x + this.width);
+                dy = (this.y + this.height) - gameObject.y
+                break;
+            }
+            case 'bottom-left': {
+                dx = (gameObject.x + gameObject.width) - this.x;
+                dy = (gameObject.y + gameObject.height) - this.y
+                break;
+            }
+            case 'bottom-right': {
+                dx = (this.x + this.width) - gameObject.x;
+                dy = this.y - (gameObject.y + gameObject.height)
+
+                break;
+            }
+            case 'none': {
+                dx = 0;
+                dy = 0;
+                break;
+            }
+            default: {
+                throw new Error('invalid direction')
+            }
+        }
+        if (!dx && !dy) {
+            return null
+        }
+        console.log('<----[(=| d |=)]---->', dx, dy)
+
+        dx = Math.max(Math.abs(dx), this.width)
+        dy = Math.max(Math.abs(dy), this.height)
+
+        return {dx, dy}
     }
 
     destroy() {

@@ -10,8 +10,21 @@ class Ball extends GameObject{
         this.velocity.x = -this.velocity.x;
     }
 
-    bounce(){
-        this.bounceOnX()
-        this.bounceOnY()
+    bounce(axis){
+        switch (axis){
+            case 'x':{
+                this.bounceOnX()
+                break;
+            }
+            case 'y':{
+                this.bounceOnY()
+                break;
+            }
+            case 'full':{
+                this.bounceOnX()
+                this.bounceOnY()
+                break;
+            }
+        }
     }
 }
