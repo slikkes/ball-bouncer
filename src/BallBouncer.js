@@ -33,7 +33,7 @@ class BallBouncer {
 
                 if (gameObject.type !== "ball") {
 
-                    const collisionAxis = gameObject.detectCollision(ball);
+                    const collisionAxis = ball.detectCollision(gameObject);
                     if (collisionAxis) {
                         //right y 490 0  460 190
                         //left y  0   0  10  160

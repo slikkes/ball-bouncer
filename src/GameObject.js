@@ -6,7 +6,7 @@ class GameObject {
         this.width = width;
         this.height = height;
         this.color = color;
-        this.velocity = null;
+        this.velocity = new Vector(0,0);
     }
 
     draw(context) {
@@ -30,9 +30,42 @@ class GameObject {
             gameObject.x + gameObject.width >= this.x;
         const collisionY = this.y + this.height >= gameObject.y &&
             gameObject.y + gameObject.height >= this.y;
+/*
 
-        if(collisionX ||collisionY){
+        const collision = {
+            xRight: this.x >= gameObject.x && this.x < gameObject.x + gameObject.width,
+            xLeft: this.x >= gameObject.x && this.x < gameObject.x + gameObject.width,
+            yRight: this.x >= gameObject.x && this.x < gameObject.x + gameObject.width,
+            yLeft: this.x >= gameObject.x && this.x < gameObject.x + gameObject.width,
         }
+        if(collisionX && collisionY){
+            console.log('<----[(=| collision |=)]---->', this.x, gameObject.x,  this.y, gameObject.y  )
+        }
+*/
+
+
+        const fullWidth = this.width + gameObject.width;
+        const fullHeight = this.height + gameObject.height;
+        const dx = null;
+        const dy = null;
+
+        if(this.velocity.x < 0 && this.velocity.y > 0){
+            const netWidth = (this.x+this.width) - gameObject.width
+            const offset = fullWidth - netWidth;
+            dx = this.width - offset;
+        }
+        if(this.velocity.x > 0 && this.velocity.y > 0){
+            const netWidth = (this.x+this.width) - gameObject.width
+
+        }
+        if(this.velocity.x < 0 && this.velocity.y < 0){
+
+        }
+        if(this.velocity.x > 0 && this.velocity.y < 0){
+
+        }
+
+
 
         return collisionX && collisionY;
     }
