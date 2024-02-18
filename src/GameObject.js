@@ -45,52 +45,17 @@ class GameObject {
             return 'full'
         }
     }
-    getIntersectionDistances(gameObject){
-        let dx = null;
-        let dy = null;
 
-        let direction = this.velocity.getDirection();
-        switch (direction) {
-            case 'top-left': {
-                dx = (gameObject.x + gameObject.width) - this.x;
-                dy = (this.y + this.height) - gameObject.y
-                // check if top left x or y is further into the collision object
-                break;
-            }
-            case 'top-right': {
-                dx = gameObject.x - (this.x + this.width);
-                dy = (this.y + this.height) - gameObject.y
-                break;
-            }
-            case 'bottom-left': {
-                dx = (gameObject.x + gameObject.width) - this.x;
-                dy = (gameObject.y + gameObject.height) - this.y
-                break;
-            }
-            case 'bottom-right': {
-                dx = (this.x + this.width) - gameObject.x;
-                dy = this.y - (gameObject.y + gameObject.height)
+    getIntersectionDistances(gameObject) {
+        const width = Math.max(this.x + this.width, gameObject.x + gameObject.width) - Math.min(gameObject.x, this.x)
+        const totalWidth = this.width + gameObject.width;
+        const height = Math.max(this.y + this.height, gameObject.y + gameObject.height) - Math.min(gameObject.y, this.y)
+        const totalHeight = this.height + gameObject.height;
 
-                break;
-            }
-            case 'none': {
-                dx = 0;
-                dy = 0;
-                break;
-            }
-            default: {
-                throw new Error('invalid direction')
-            }
+        return {
+            dx: totalWidth - width,
+            dy: totalHeight - height
         }
-        if (!dx && !dy) {
-            return null
-        }
-        console.log('<----[(=| d |=)]---->', dx, dy)
-
-        dx = Math.max(Math.abs(dx), this.width)
-        dy = Math.max(Math.abs(dy), this.height)
-
-        return {dx, dy}
     }
 
     destroy() {
