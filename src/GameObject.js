@@ -24,16 +24,21 @@ class GameObject {
         this.x = this.x + this.velocity.x
         this.y = this.y + this.velocity.y
     }
+    detectCollision(gameObject){
+        const collisionX = this.getRightX() >= gameObject.x &&
+            gameObject.getRightX() >= this.x;
+        const collisionY = this.getBottomY() >= gameObject.y &&
+            gameObject.getBottomY() >= this.y;
+        return  collisionX && collisionY
 
+    }
     detectCollisionAxis(gameObject) {
-        const collisionX = this.x + this.width >= gameObject.x &&
-            gameObject.x + gameObject.width >= this.x;
-        const collisionY = this.y + this.height >= gameObject.y &&
-            gameObject.y + gameObject.height >= this.y;
 
-        if (!(collisionX && collisionY)) {
+        if (!this.detectCollision(gameObject)) {
             return null
         }
+
+
 
         const distances = this.getIntersectionDistances(gameObject)
 
@@ -47,9 +52,9 @@ class GameObject {
     }
 
     getIntersectionDistances(gameObject) {
-        const width = Math.max(this.x + this.width, gameObject.x + gameObject.width) - Math.min(gameObject.x, this.x)
+        const width = Math.max(this.getRightX(), gameObject.getRightX()) - Math.min(gameObject.x, this.x)
         const totalWidth = this.width + gameObject.width;
-        const height = Math.max(this.y + this.height, gameObject.y + gameObject.height) - Math.min(gameObject.y, this.y)
+        const height = Math.max(this.getBottomY(), gameObject.getBottomY()) - Math.min(gameObject.y, this.y)
         const totalHeight = this.height + gameObject.height;
 
         return {
@@ -61,4 +66,12 @@ class GameObject {
     destroy() {
 
     }
+    getRightX() {
+        return this.x + this.width;
+    }
+    getBottomY() {
+        return this.y + this.height;;
+    }
+    
+    
 }
