@@ -4,36 +4,23 @@ class BallBouncer {
         this.gameObjects = [];
         this.gameIntervalID = null;
         this.score = null;
+        this.entities = {}
     }
 
     init() {
+        this.entities = entities;
         const canvasHolder = document.getElementById("canvas-holder")
         if (!canvasHolder) {
             throw new Error("missing canvas holder")
         }
         this.gameArea.initGameArea(canvasHolder);
-        document.addEventListener("keydown", (event) => {
-            if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-                console.log(event.key === "ArrowLeft" || event.key === "ArrowRight");
-                this.startMovePlayer(event.key)
-                return;
-            }
-
-
-        });
-        document.addEventListener("keyup", (event) => {
-            if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-                console.log(event.key === "ArrowLeft" || event.key === "ArrowRight");
-                this.stopMovePlayer(event.key)
-                return;
-            }
-
-
-        });
+        this.registerListeners();
     }
 
     start() {
-        this.score = 0;
+        this.stop();
+
+        this.setScore(0)
 
         const origo = this.gameArea.origo
         let ball = new Ball(origo.x, origo.y + 150);
@@ -67,10 +54,9 @@ class BallBouncer {
                         ball.bounce(collisionAxis)
                         if (gameObject.type === "brick") {
                             gameObject.destroy()
-                            this.addScore(10)
+                            this.setScore(this.score + 10)
 
                         }
-                        console.log('<----[(=| collision |=)]---->', collisionAxis)
                     }
                 }
             }
@@ -79,7 +65,6 @@ class BallBouncer {
             if (i >= 30) {
                 i = 0;
                 const hasBricks = this.gameObjects.some(gameObject => gameObject.type === "brick")
-                console.log('<----[(=| hasbricks |=)]---->', hasBricks)
                 if (!hasBricks) {
                     this.spawnBricks();
                 }
@@ -94,9 +79,9 @@ class BallBouncer {
         if (!this.gameIntervalID) {
             return;
         }
-        clearInterval(this.gameIntervalID)
         this.gameObjects = [];
-        this.gameArea.refreshGameArea();
+        this.gameArea.refreshGameArea(this);
+        clearInterval(this.gameIntervalID)
     }
 
     startMovePlayer(key) {
@@ -111,15 +96,53 @@ class BallBouncer {
     }
 
     spawnBricks() {
-        const origo = this.gameArea.origo
-        this.gameObjects.push(new Brick(origo.x + 65, 25));
-        this.gameObjects.push(new Brick(origo.x - 65, 25));
-        this.gameObjects.push(new Brick(origo.x - 130, 25));
-        this.gameObjects.push(new Brick(origo.x, 25));
-        this.gameObjects.push(new Brick(origo.x + 130, 25));
+        const n = Math.round(this.gameArea.canvas.width / 70)
+        const offset=20;
+        for (let i = 0; i < n; i++) {
+            const brick = new Brick(offset + i * 65, 25, this.entities.bricks.medium);
+            this.gameObjects.push(brick)
+        }
+
+        /*  const origo = this.gameArea.origo
+          this.gameObjects.push(new Brick(origo.x + 65, 25));
+          this.gameObjects.push(new Brick(origo.x - 65, 25));
+          this.gameObjects.push(new Brick(origo.x - 130, 25));
+          this.gameObjects.push(new Brick(origo.x, 25));
+          this.gameObjects.push(new Brick(origo.x + 130, 25));*/
     }
-    addScore(score){
-        this.score += score;
+
+    setScore(score) {
+        this.score = score;
         document.querySelector("#score-output").innerHTML = this.score;
+    }
+
+    gameOver() {
+        console.log("GAME OVER")
+        setTimeout(() => {
+            this.stop();
+            this.gameArea.showGameOver(this.score);
+        }, 1)
+    }
+
+    registerListeners() {
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+                console.log(event.key === "ArrowLeft" || event.key === "ArrowRight");
+                this.startMovePlayer(event.key)
+                return;
+            }
+
+
+        });
+        document.addEventListener("keyup", (event) => {
+            if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+                console.log(event.key === "ArrowLeft" || event.key === "ArrowRight");
+                this.stopMovePlayer(event.key)
+                return;
+            }
+        });
+        document.addEventListener("game-over", () => {
+            this.gameOver();
+        });
     }
 }

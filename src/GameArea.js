@@ -25,4 +25,15 @@ class GameArea{
         context.fillRect(0,0, this.canvas.width, this.canvas.height);
         context.fill();
     }
+
+    showGameOver(score){
+        const context = this.getContext();
+        context.fillStyle = 'black';
+        context.font = "50px serif";
+        context.fillText("GAME OVER", 50, 90);
+
+        context.fillStyle = 'gold';
+        context.font = "80px serif";
+        context.fillText(score, 50, 190);
+    }
 }
