@@ -65,7 +65,7 @@ class Ball extends GameObject {
 
         // Top Bounce: Ensures the ball bounces off the top boundary.
         if(y<=0){
-            this.bounceOnY();
+            this.velocity.y =-this.velocity.y
             y = this.y + this.velocity.y;
         }
 
