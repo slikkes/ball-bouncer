@@ -22,16 +22,19 @@ class GameObject {
             return;
         }
 
-        const x = this.x + this.velocity.x;
-        const y = this.y + this.velocity.y;
+        this.x = this.x + this.velocity.x;
+        this.y = this.y + this.velocity.y;
 
-        if (x > 0 && (x + this.width) < context.canvas.clientWidth) {
-            this.x = x;
-        }
+        /*  const x = this.x + this.velocity.x;
+          const y = this.y + this.velocity.y;
 
-        if (y > 0 && (y + this.height) < context.canvas.clientHeight) {
-            this.y = y;
-        }
+          if (x > 0 && (x + this.width) < context.canvas.clientWidth) {
+              this.x = x;
+          }
+
+          if (y > 0 && (y + this.height) < context.canvas.clientHeight) {
+              this.y = y;
+          }*/
 
     }
 
@@ -84,7 +87,6 @@ class GameObject {
 
     getBottomY() {
         return this.y + this.height;
-        ;
     }
 
 
