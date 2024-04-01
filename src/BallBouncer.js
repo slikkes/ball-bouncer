@@ -76,8 +76,11 @@ class BallBouncer {
                         const hp = gameObject.decreaseHP()
                         if (!hp) {
                             this.setScore(this.score + gameObject.score)
+                            if(gameObject.powerUp){
+                                this.spawnPowerUp(gameObject);
+                            }
                         } else {
-                            if(!ball.bounced){
+                            if (!ball.bounced) {
                                 ball.bounce(collisionAxis)
                                 ball.bounced = true;
                             }
@@ -88,15 +91,33 @@ class BallBouncer {
                             ? "right"
                             : "left";
 
-                        console.log('<----[(=| asd |=)]---->', direction, ball.velocity)
+
                         ball.bounce(collisionAxis)
                         if ((direction === "left" && ball.velocity.x > 0) || (direction === "right" && ball.velocity.x <= 0)) {
                             ball.bounceOnY();
                         }
-                    } else {
-                        ball.bounce(collisionAxis)
-
+                    } else  {
+                        if(gameObject.type !== "power-up"){
+                            ball.bounce(collisionAxis)
+                        }
                     }
+                }
+
+
+                if(gameObject.type === "power-up"){
+
+
+                    if (this.player.detectCollision(gameObject)){
+                        gameObject.destroy();
+                        if (gameObject.powerUp.type === "size"){
+                            this.player.changeSize(gameObject.powerUp.level);
+                        }
+                        if (gameObject.powerUp.type === "playerSpeed"){
+                            this.player.changeSpeed(gameObject.powerUp.level);
+                        }
+                        console.log('<----[(=| powerup catched |=)]---->', gameObject.powerUp, this.player);
+                    }
+
                 }
             }
         }
@@ -129,39 +150,24 @@ class BallBouncer {
     }
 
     /**
-     * Updates the player's velocity for left or right movement based on arrow key presses.
-     *
-     * @param {string} key - the key pressed.
-     */
-    startMovePlayer(key) {
-        const x = key === "ArrowRight"
-            ? 2
-            : -2
-        this.player.velocity = new Vector(x, 0)
-    }
-
-    /**
-     * Stops player
-     *
-     */
-    stopMovePlayer() {
-        this.player.velocity = new Vector(0, 0)
-    }
-
-    /**
      * Creates a row of bricks for the ball to interact with.
      *
      */
     spawnBricks(bricks) {
-        console.log('<----[(=| bricks |=)]---->', bricks)
+
         for (const brickData of bricks) {
-            const brick = new Brick(brickData.x, 25, this.entities.bricks[brickData.type]);
+            const brickParams = JSON.parse(JSON.stringify( this.entities.bricks[brickData.type]));
+            brickParams.powerUp = brickData.powerUp
+
+            const brick = new Brick(brickData.x, 25, brickParams);
             this.gameObjects.push(brick)
         }
-
-
     }
 
+    spawnPowerUp(brick){
+        const powerUp = new PowerUp(brick.getCenterX(), brick.getCenterY(), brick.powerUp.type, brick.powerUp.level)
+        this.gameObjects.push(powerUp)
+    }
     generateBrickLine() {
         const n = Math.round(this.gameArea.canvas.width / 70)
         const offset = 20;
@@ -170,7 +176,33 @@ class BallBouncer {
         return Array(n)
             .fill({})
             .map((item, i) => {
-                return {type: 'ultra', x: offset + i * 65, powerUps: []}
+                let type = 'medium';
+                const noPowerup = 0.5;
+                let lastIntervalEnd = 0;
+
+                const availablePowerUps = Object.entries(this.entities.powerUps)
+                    .filter(([key, item]) => Object.keys(item.dropRate).includes(type))
+                    .map(([key, item], idx) => {
+                        const ret = JSON.parse(JSON.stringify(item))
+                        ret.dropRate = item.dropRate[type];
+                        ret.interval = [lastIntervalEnd + 0.01, lastIntervalEnd + ret.dropRate]
+                        ret.level = Math.ceil(Math.random() * item.maxLevel);
+                        ret.type = key;
+
+                        lastIntervalEnd = ret.interval[1]
+                        return ret;
+                    })
+
+                const rn = Math.random() * (lastIntervalEnd + noPowerup);
+                let powerUp = null;
+                if(rn < lastIntervalEnd){
+                   powerUp = availablePowerUps.find(i => i.interval[0] <= rn && i.interval[1] >= rn)
+                }
+
+
+
+              //  return {type: type, x: offset + i * 65, powerUp}
+                return {type: type, x: offset + i * 65, powerUp: {type: 'playerSpeed', level: 2}}
             })
     }
 
@@ -188,7 +220,6 @@ class BallBouncer {
      *
      */
     gameOver() {
-        console.log("GAME OVER")
         setTimeout(() => {
             this.stop();
             this.gameArea.showGameOver(this.score);
@@ -202,8 +233,7 @@ class BallBouncer {
     registerListeners() {
         document.addEventListener("keydown", (event) => {
             if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-                console.log(event.key === "ArrowLeft" || event.key === "ArrowRight");
-                this.startMovePlayer(event.key)
+                this.player.startMovement(event.key.replace('Arrow','').toLowerCase())
                 return;
             }
 
@@ -211,8 +241,7 @@ class BallBouncer {
         });
         document.addEventListener("keyup", (event) => {
             if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-                console.log(event.key === "ArrowLeft" || event.key === "ArrowRight");
-                this.stopMovePlayer(event.key)
+                this.player.stopMovement(event.key)
                 return;
             }
         });

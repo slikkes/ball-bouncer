@@ -62,6 +62,10 @@ class GameObject {
             gameObject.getRightX() >= this.x;
         const collisionY = this.getBottomY() >= gameObject.y &&
             gameObject.getBottomY() >= this.y;
+        if(this.type === 'player'){
+            console.log('<----[(=| co |=)]---->', collisionX,
+            collisionY)
+        }
         return collisionX && collisionY
     }
 

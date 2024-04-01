@@ -6,7 +6,8 @@ class Brick extends GameObject{
         this.totalHp = brickParams.hp;
         this.hp = brickParams.hp;
         this.score = brickParams.score;
-        this.powerUps = brickParams.powerUps;
+        this.powerUp = brickParams.powerUp;
+        console.log('<----[(=| powerup |=)]---->', brickParams.powerUp, this.powerUp)
     }
 
     decreaseHP(){
