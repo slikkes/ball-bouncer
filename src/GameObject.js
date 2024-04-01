@@ -83,10 +83,8 @@ class GameObject {
 
         if (distances.dx > distances.dy) {
             return 'x'
-        } else if (distances.dx < distances.dy) {
-            return 'y'
         } else {
-            return 'full'
+            return 'y'
         }
     }
 
@@ -133,5 +131,19 @@ class GameObject {
         return this.y + this.height;
     }
 
+    getCenterX() {
+        return (this.width / 2) + this.x;
+    }
+
+    getCenterY() {
+        return (this.height / 2) + this.y;
+    }
+
+    decreaseIframes() {
+        if(this.iframes < 1){
+            return;
+        }
+        this.iframes--;
+    }
 
 }

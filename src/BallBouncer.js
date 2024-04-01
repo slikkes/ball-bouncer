@@ -2,9 +2,12 @@ class BallBouncer {
     constructor() {
         this.gameArea = new GameArea();         // Instance of the GameArea class
         this.gameObjects = [];                  // Holds all active game objects (ball, walls, player, etc.)
-        this.gameIntervalID = null;             // Stores the ID of the game loop interval
         this.score = null;                      // Player's current score
         this.entities = {};                     // Stores game entities (e.g., different brick types)
+        this.gameInterval = {                   // Stores the ID of the game loop interval and frame id
+            id: null,
+            frame: 0
+        }
     }
 
     /**
@@ -21,6 +24,7 @@ class BallBouncer {
         this.gameArea.initGameArea(canvasHolder);
         this.registerListeners();
     }
+
     /**
      * Resets the score, creates initial game, and begins the main game loop.
      *
@@ -38,7 +42,7 @@ class BallBouncer {
         this.gameObjects.push(ball)
         this.gameObjects.push(new Wall(0, this.gameArea.canvas.height))
         this.gameObjects.push(new Wall(this.gameArea.canvas.width - 10, this.gameArea.canvas.height));
-        this.spawnBricks();
+        this.spawnBricks(this.generateBrickLine());
         this.player = new Player(origo.x, this.gameArea.canvas.height - 10);
         this.gameObjects.push(this.player);
 
@@ -47,40 +51,68 @@ class BallBouncer {
         // TODO create player
 
         const context = this.gameArea.getContext();
-        let i = 0;
-        this.gameIntervalID = setInterval(() => {
-            this.gameArea.refreshGameArea();
+        this.gameInterval.frame = 0;
+        this.gameInterval.id = setInterval(() => {
+            this.update(context, ball);
+        }, 16);
+    }
 
-            for (const gameObject of this.gameObjects) {
-                gameObject.move(context);
-                gameObject.draw(context);
+    update(context, ball) {
+        this.gameArea.refreshGameArea();
+        ball.bounced = false;
+        for (const gameObject of this.gameObjects) {
+            gameObject.move(context);
+            gameObject.draw(context);
 
-                if (gameObject.type !== "ball") {
+            if (this.gameInterval.frame >= 20) {
+                continue;
+            }
 
-                    const collisionAxis = ball.detectCollisionAxis(gameObject);
-                    if (collisionAxis) {
-                        ball.bounce(collisionAxis)
-                        if (gameObject.type === "brick") {
-                            gameObject.destroy()
-                            this.setScore(this.score + 10)
+            if (gameObject.type !== "ball") {
 
+                const collisionAxis = ball.detectCollisionAxis(gameObject);
+                if (collisionAxis) {
+                    if (gameObject.type === "brick") {
+                        const hp = gameObject.decreaseHP()
+                        if (!hp) {
+                            this.setScore(this.score + gameObject.score)
+                        } else {
+                            if(!ball.bounced){
+                                ball.bounce(collisionAxis)
+                                ball.bounced = true;
+                            }
                         }
+
+                    } else if (gameObject.type === "player") {
+                        const direction = ball.getCenterX() > gameObject.getCenterX()
+                            ? "right"
+                            : "left";
+
+                        console.log('<----[(=| asd |=)]---->', direction, ball.velocity)
+                        ball.bounce(collisionAxis)
+                        if ((direction === "left" && ball.velocity.x > 0) || (direction === "right" && ball.velocity.x <= 0)) {
+                            ball.bounceOnY();
+                        }
+                    } else {
+                        ball.bounce(collisionAxis)
+
                     }
                 }
             }
-            this.gameObjects = this.gameObjects.filter(gameObject => !gameObject.destroyed)
+        }
+        this.gameObjects = this.gameObjects.filter(gameObject => !gameObject.destroyed)
 
-            if (i >= 30) {
-                i = 0;
-                const hasBricks = this.gameObjects.some(gameObject => gameObject.type === "brick")
-                if (!hasBricks) {
-                    this.spawnBricks();
-                }
-
-
+        if (this.gameInterval.frame >= 30) {
+            this.gameInterval.frame = 0;
+            const hasBricks = this.gameObjects.some(gameObject => gameObject.type === "brick")
+            if (!hasBricks) {
+                this.spawnBricks(this.generateBrickLine());
             }
-            i++;
-        }, 16);
+
+
+        }
+
+        this.gameInterval.frame = this.gameInterval.frame >= 10 ? 0 : this.gameInterval.frame + 1;
     }
 
     /**
@@ -88,13 +120,14 @@ class BallBouncer {
      *
      */
     stop() {
-        if (!this.gameIntervalID) {
+        if (!this.gameInterval.id) {
             return;
         }
         this.gameObjects = [];
         this.gameArea.refreshGameArea(this);
-        clearInterval(this.gameIntervalID)
+        clearInterval(this.gameInterval.id)
     }
+
     /**
      * Updates the player's velocity for left or right movement based on arrow key presses.
      *
@@ -106,6 +139,7 @@ class BallBouncer {
             : -2
         this.player.velocity = new Vector(x, 0)
     }
+
     /**
      * Stops player
      *
@@ -113,24 +147,31 @@ class BallBouncer {
     stopMovePlayer() {
         this.player.velocity = new Vector(0, 0)
     }
+
     /**
      * Creates a row of bricks for the ball to interact with.
      *
      */
-    spawnBricks() {
-        const n = Math.round(this.gameArea.canvas.width / 70)
-        const offset = 20;
-        for (let i = 0; i < n; i++) {
-            const brick = new Brick(offset + i * 65, 25, this.entities.bricks.medium);
+    spawnBricks(bricks) {
+        console.log('<----[(=| bricks |=)]---->', bricks)
+        for (const brickData of bricks) {
+            const brick = new Brick(brickData.x, 25, this.entities.bricks[brickData.type]);
             this.gameObjects.push(brick)
         }
 
-        /*  const origo = this.gameArea.origo
-          this.gameObjects.push(new Brick(origo.x + 65, 25));
-          this.gameObjects.push(new Brick(origo.x - 65, 25));
-          this.gameObjects.push(new Brick(origo.x - 130, 25));
-          this.gameObjects.push(new Brick(origo.x, 25));
-          this.gameObjects.push(new Brick(origo.x + 130, 25));*/
+
+    }
+
+    generateBrickLine() {
+        const n = Math.round(this.gameArea.canvas.width / 70)
+        const offset = 20;
+
+
+        return Array(n)
+            .fill({})
+            .map((item, i) => {
+                return {type: 'ultra', x: offset + i * 65, powerUps: []}
+            })
     }
 
     /**

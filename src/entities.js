@@ -1,7 +1,7 @@
 const entities = {
   "bricks": {
     "basic": {
-      "color": [
+      "colors": [
         "#febe00"
       ],
       "hp": 1,
@@ -18,7 +18,7 @@ const entities = {
       "powerUps": []
     },
     "strong": {
-      "color": [
+      "colors": [
         "#febe00",
         "#ff7800",
         "#33e3da"
@@ -28,7 +28,7 @@ const entities = {
       "powerUps": []
     },
     "ultra": {
-      "color": [
+      "colors": [
         "#febe00",
         "#ff7800",
         "#33e3da",
@@ -39,7 +39,7 @@ const entities = {
       "powerUps": []
     },
     "veryUltra": {
-      "color": [
+      "colors": [
         "#febe00",
         "#ff7800",
         "#33e3da",

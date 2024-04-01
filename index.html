@@ -12,14 +12,25 @@
     <script src="src/Brick.js"></script>
     <script src="src/Player.js"></script>
     <script src="src/entities.js"></script>
+    <style>
+        button{
+            user-select: none;
+        }
+        #score-output{
+            user-select: none;
+        }
+        #buttons{
+            user-select: none;
+        }
+    </style>
 </head>
 <body>
-<div style="display: flex;">
+<div  style="display: flex;">
     <div id="canvas-holder"></div>
     <div>
         <p id="score-output"></p>
     </div>
-    <div>
+    <div id="buttons">
         <button onclick="game.start()">START GAME</button>
         <button onclick="game.stop()">STOP GAME</button>
     </div>
